@@ -1,6 +1,27 @@
+/* Copyright (c) 2010 Ian Zamojc.
+   All rights reserved.
+   
+   Redistribution and use in source and binary forms are permitted
+   provided that the above copyright notice and this paragraph are
+   duplicated in all such forms and that any documentation,
+   advertising materials, and other materials related to such
+   distribution and use acknowledge that the software was developed
+   by Ian Zamojc.  The name of the University may not be used to
+   endorse or promote products derived from this software without
+   specific prior written permission. THIS SOFTWARE IS PROVIDED
+   ``AS IS'' AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+   WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+   FITNESS FOR A PARTICULAR PURPOSE. */
+
 (function($) {
-    $.fn.stacktack = function(opts) {
-        var options = $.extend($.fn.stacktack.defaults, opts);
+    
+    // Here we create a jquery method named 'stacktack' that can be invoked with options
+    // for the specific set of matched elements that will override the defaults
+    $.fn.stacktack = function(custom_options) {
+        
+        // Determine the final options that will be applied
+        var options = $.extend($.fn.stacktack.defaults, custom_options);
+        
         // a list of options suitable for per-item overrides, lowercase for comparison
         var optionKeys = ['width', 'onlyshowacceptedanswer', 'answerlimit', 'filteranswers', 'showtags'];
         
@@ -16,14 +37,44 @@
             }
         }
         
-        function createProfile(user) {
-            if (user) {
-                return '<div class="stacktack-profile"><img src="http://www.gravatar.com/avatar/' + user.email_hash + '?d=identicon&s=32" class="stacktack-gravatar" /><a href="http://' + options.site + '/users/' + user.user_id  + '" target="_blank">' + user.display_name + '</a><br/>' + user.reputation + '</div>';
-            } else {
-                return '';
-            }
+        // Utility method that generates the HTML for a user profile
+        function GenerateProfileHTML(user) {
+            
+            return (user)?'<div class="stacktack-profile"><img src="http://www.gravatar.com/avatar/' + user.email_hash + '?d=identicon&s=32" class="stacktack-gravatar" /><a href="http://' + options.site + '/users/' + user.user_id  + '" target="_blank">' + user.display_name + '</a><br/>' + user.reputation + '</div>':'';
+            
         }
         
+        // Utility method that sends a request to the API
+        function SendAPIRequest(site_domain, method, parameters, success_callback, error_callback) {
+            
+            // Begin by constructing the URL that will be used for the request
+            var url = (options['secure']?'https://':'http://') + 'api.stackexchange.com/2.0' + method;
+            
+            // Generate the query string that will be used for the request
+            parameters['key'] = options['key'];  // add the API key
+            var encoded_query_string = [];
+            
+            for(name in parameters)
+                encoded_query_string.push(encodeURIComponent(name) + '=' + encodeURIComponent(parameters[name]));
+            
+            // Append the parameters to the URL
+            url += encoded_query_string;
+            
+            // Lastly, make the request
+            $.ajax({ 'url': url, 'dataType': 'jsonp',
+                     'success': function(data) {
+                         
+                         // If an error message was supplied, then invoke the error callback
+                         if(typeof data['error_message'] != 'undefined')
+                             error_callback(data['error_message']);
+                         else
+                             success_callback(data['items']);
+                         
+                     }});
+            
+        }
+        
+        // Loop over each element on the page with the 'stacktack' class
         return this.each(function() {
             var $this = $(this);
             $this.filter('[id^=stacktack], [class^=stacktack]').add($this.find('[id^=stacktack], [class^=stacktack]')).each(function(index, value) {
@@ -181,10 +232,10 @@
         });
     };
 
-
+    // These are the default settings that are applied to each element in the matched set
     $.fn.stacktack.defaults = {
-        site: 'stackoverflow.com',
-        apiVersion: '1.0',
+        key: '',
+        secure: false,
         stylesheet: 'styles/base.min.css',
         answerLimit: 0,
         onlyShowAcceptedAnswer: false,
