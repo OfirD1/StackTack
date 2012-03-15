@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 Ian Zamojc.
+/* Copyright (c) 2012 Ian Zamojc, Marco Ceppi, & Nathan Osman.
    All rights reserved.
    
    Redistribution and use in source and binary forms are permitted
@@ -15,6 +15,71 @@
 
 (function($) {
     
+    // Inject the stylesheet into the current page
+    // [TODO]
+    
+    // Utility method to retrieve a data attribute of an HTML element
+    function RetrieveDataAttribute(element, attribute, default_value) {
+        
+        // If the dataset is available, then return the default value
+        if(typeof element.dataset != 'undefined')
+            return (typeof element.dataset[attribute] != 'undefined')?element.dataset[attribute]:default_value;
+        
+        // Otherwise, attempt to access the attribute the old-fashioned way
+        var attr_value = element.getAttribute('data-' + attribute);
+        return (attr_value != null)?attr_value:default_value;
+        
+    }
+    
+    // Utility method that sends a request to the API
+    function SendAPIRequest(options, site_domain, method, parameters, success_callback, error_callback) {
+        
+        // Begin by constructing the URL that will be used for the request
+        var url = (options['secure']?'https://':'http://') + 'api.stackexchange.com/2.0' + method;
+        
+        // Add the API key and site to the list of parameters
+        parameters['key']  = options['key'];
+        parameters['site'] = site_domain;
+        
+        // Lastly, make the request
+        $.ajax({ 'url': url, 'data': parameters, 'dataType': 'jsonp',
+                 'success': function(data) {
+                     
+                     // If an error message was supplied, then invoke the error callback
+                     if(typeof data['error_message'] != 'undefined')
+                         error_callback(data['error_message']);
+                     else
+                         success_callback(data['items']);
+                     
+                 }});
+    }
+    
+    // Utility method that generates the HTML for a user profile
+    function GenerateProfileHTML(user) {
+        
+        return (user)?'<div class="stacktack-profile"><img src="http://www.gravatar.com/avatar/' + user.email_hash + '?d=identicon&s=32" class="stacktack-gravatar" /><a href="http://' + options.site + '/users/' + user.user_id  + '" target="_blank">' + user.display_name + '</a><br/>' + user.reputation + '</div>':'';
+        
+    }
+    
+    // Processes a list of questions for a particular site
+    function ProcessQuestionList(question_list, api_data) {
+        
+        // First, convert the data into a map [question ID] => [API data]
+        var questions = {};
+        $.each(api_data, function(key, question) { questions[question['question_id']] = question; });
+        
+        // Now go through each instance in question list, generating the HTML for it
+        $.each(question_list, function(key, instance) {
+            
+            // Find the right API data for the instance and generate it
+            var instance_data = questions[instance['question_id']];
+            var element = $(instance['element']);
+            
+            element.html(instance_data['title']);
+            
+        });
+    }
+    
     // Here we create a jquery method named 'stacktack' that can be invoked with options
     // for the specific set of matched elements that will override the defaults
     $.fn.stacktack = function(custom_options) {
@@ -22,113 +87,51 @@
         // Determine the final options that will be applied
         var options = $.extend($.fn.stacktack.defaults, custom_options);
         
-        // a list of options suitable for per-item overrides, lowercase for comparison
-        var optionKeys = ['width', 'onlyshowacceptedanswer', 'answerlimit', 'filteranswers', 'showtags'];
+        // As we loop over the elements, we will be generating a list of post IDs for various
+        // sites in the Stack Exchange network. Keep a list of them here:
+        var site_list = {};
         
-        if (options.stylesheet) {
-            // only include the stylesheet once
-            if ($('link[href="' + options.stylesheet + '"]').length === 0) {
-                // necessary for IE to dynamically load stylesheet
-                if (document.createStyleSheet) {
-                    document.createStyleSheet(options.stylesheet);
-                } else {
-                    $('<link rel="stylesheet" type="text/css" href="' + options.stylesheet + '" />').appendTo('head'); 
-                }
+        // Begin looping over the current set of matched elements, applying StackTack to them
+        this.each(function() {
+            
+            // Retrieve the options for the current element - ID is required
+            var question_id = RetrieveDataAttribute(this, 'id', null);
+            if(question_id !== null) {
+                
+                // Determine the site (and remove '.com' from the end for consistency)
+                var site = RetrieveDataAttribute(this, 'site', 'stackoverflow').replace(/\.com$/, '');
+                
+                // Add the item to the list for that site
+                if(typeof site_list[site] == 'undefined')
+                    site_list[site] = [];
+                
+                // Create a map of all of the properties for this particular instance
+                var instance_details = { 'element':     this,
+                                         'question_id': question_id };
+                
+                site_list[site].push(instance_details);
+                
             }
-        }
+        });
         
-        // Utility method that generates the HTML for a user profile
-        function GenerateProfileHTML(user) {
+        // Now loop over each site and fetch the questions for that site
+        $.each(site_list, function(site, question_list) {
             
-            return (user)?'<div class="stacktack-profile"><img src="http://www.gravatar.com/avatar/' + user.email_hash + '?d=identicon&s=32" class="stacktack-gravatar" /><a href="http://' + options.site + '/users/' + user.user_id  + '" target="_blank">' + user.display_name + '</a><br/>' + user.reputation + '</div>':'';
+            // Concatenate the list of question IDs
+            var question_id_list = [];
+            $.each(question_list, function(key, instance) { question_id_list.push(instance['question_id']); });
+            var question_id_str = $.unique(question_id_list).join(';');
             
-        }
+            // Make the API request for the question data
+            SendAPIRequest(options, site, '/questions/' + question_id_str, {},
+                           function(data) { ProcessQuestionList(question_list, data); },
+                           /* TODO */
+                           function(error_message) {});
+            
+        });
         
-        // Utility method that sends a request to the API
-        function SendAPIRequest(site_domain, method, parameters, success_callback, error_callback) {
-            
-            // Begin by constructing the URL that will be used for the request
-            var url = (options['secure']?'https://':'http://') + 'api.stackexchange.com/2.0' + method;
-            
-            // Generate the query string that will be used for the request
-            parameters['key'] = options['key'];  // add the API key
-            var encoded_query_string = [];
-            
-            for(name in parameters)
-                encoded_query_string.push(encodeURIComponent(name) + '=' + encodeURIComponent(parameters[name]));
-            
-            // Append the parameters to the URL
-            url += encoded_query_string;
-            
-            // Lastly, make the request
-            $.ajax({ 'url': url, 'dataType': 'jsonp',
-                     'success': function(data) {
-                         
-                         // If an error message was supplied, then invoke the error callback
-                         if(typeof data['error_message'] != 'undefined')
-                             error_callback(data['error_message']);
-                         else
-                             success_callback(data['items']);
-                         
-                     }});
-            
-        }
+        /*
         
-        // Loop over each element on the page with the 'stacktack' class
-        return this.each(function() {
-            var $this = $(this);
-            $this.filter('[id^=stacktack], [class^=stacktack]').add($this.find('[id^=stacktack], [class^=stacktack]')).each(function(index, value) {
-                var item = $(value);
-                // try to retrieve the question id from the id attribute
-                var questionId = '';
-                if (value.id) {
-                    var matches = /\d+$/.exec(value.id);
-                    if (matches.length > 0) {
-                        questionId = matches[0];
-                    }
-                }
-
-                // parse override options from classes
-                var itemOptions = $.extend({}, options);
-                var classAttr = item.attr('class');
-                if (classAttr && classAttr.length) {
-                    classes = item.attr('class').split(' ');
-                    for (var i = 0; i < classes.length; i++) {
-                        clas = classes[i];
-                        classTokens = clas.split('-');
-                        // if there was a split
-                        if (classTokens.length > 1) {
-                            // search for a stacktack id class and use if it if the questionId hasn't been set yet
-                            if (classTokens[0].toLowerCase() == 'stacktack') {
-                                questionId = classTokens[1];
-                                continue;
-                            }
-                            
-                            // convert special value strings
-                            for (var j = 1; j < classTokens.length; j++) {
-                                classToken = classTokens[j].toLowerCase();
-                                // replace booleans
-                                if (classToken === 'true' || classToken === 'false') {
-                                    classTokens[j] = (classToken==="true");
-                                    continue;
-                                }
-                                // replace percentages since the % is not a valid class name character
-                                classTokens[j] = classToken.replace(/percent/i, '%');
-                            }
-                            // if the first token of the class is an override option
-                            if ($.inArray(classTokens[0].toLowerCase(), optionKeys) > -1) {
-                                // it's a list
-                                if (classTokens.length > 2 || classTokens[0].toLowerCase() == 'filteranswers') {
-                                    itemOptions[classTokens[0]] = classTokens.slice(1);
-                                }
-                                // it's a single value
-                                else {
-                                    itemOptions[classTokens[0]] = classTokens[1];
-                                }
-                            }
-                        }
-                    }
-                }
                 // appended as last step
                 var containerElement = $('<div class="stacktack-container"></div>');
                 if (itemOptions.width) {
@@ -139,19 +142,6 @@
                 containerElement.append(contentElement);
                 var loadingElement = $('<p class="stacktack-loading">Loading Question ID ' + questionId + '</p>');
                 contentElement.append(loadingElement);
-
-                $.ajax({
-                    dataType: 'jsonp',
-                    data: {
-                        'apikey':'kz4oNmbazUGoJIUyUbSaLg',
-                        'answers': 'true',
-                        'body': 'true'
-                    },
-                    url: 'http://api.' + options.site + '/' + options.apiVersion + '/questions/' + questionId + '?jsonp=?',
-                    success: function(data) {
-                        loadingElement.remove();
-                        
-                        var question = data.questions[0];
 
                         var questionElement = $('<div class="stacktack-question"> <div class="stacktack-question-header clearfix">' + createProfile(question.owner) + '<h3><a href="http://' + options.site + '/questions/' + question.question_id + '" target="_blank">' + question.title + '</a></h3><div class="stacktack-votes">' + question.score + ' Votes</div></div><div class="stacktack-question-body">' + question.body + '</div></div>');
                         contentElement.append(questionElement);
@@ -230,6 +220,7 @@
                 item.append(containerElement);
             });
         });
+        */
     };
 
     // These are the default settings that are applied to each element in the matched set

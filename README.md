@@ -16,10 +16,10 @@
   </li>
   <li>
     Add the following code to your <code>$(document).ready()</code> handler:
-    <pre><code>$(document).stacktack();</code></pre>
+    <pre><code>$('.stacktack').stacktack();</code></pre>
   </li>
   <li>
     Create an element in your page like so:
-    <pre><code>&lt;div id="stacktack-518021"&gt;&lt;/div&gt;</code></pre>
+    <pre><code>&lt;div id="stacktack" data-site="stackoverflow" data-id="1732348" &gt;&lt;/div&gt;</code></pre>
   </li>
 </ol>
