@@ -15,24 +15,30 @@
 
 (function($) {
     
-    // When building StackTack (using the build script), there is an option
-    // to generate JS code that will inject the CSS into the page dynamically
-    // instead of depending on an external CSS file. This may be beneficial in
-    // some cases. Therefore please do not remove the comment below until after
-    // the build process is complete.
+    // When building StackTack (using the build script), there is an option to generate JS code that will
+    // inject the CSS into the page dynamically instead of depending on an external CSS file. This may be
+    // beneficial in some cases. Therefore please do not remove the comment below until after the build
+    // process is complete.
     
     /* INJECTED_STYLESHEET_PLACEHOLDER */
     
-    // Utility method to retrieve a data attribute of an HTML element
-    function RetrieveDataAttribute(element, attribute, default_value) {
+    // Utility method to retrieve a list of data attributes for an element with fallback for non-HTML5 browsers
+    function RetrieveDataAttributes(element) {
         
         // If the dataset is available, then return the default value
         if(typeof element.dataset != 'undefined')
-            return (typeof element.dataset[attribute] != 'undefined')?element.dataset[attribute]:default_value;
+            return element.dataset;
         
-        // Otherwise, attempt to access the attribute the old-fashioned way
-        var attr_value = element.getAttribute('data-' + attribute);
-        return (attr_value != null)?attr_value:default_value;
+        // Otherwise, enumerate each of the attributes in the element
+        var data_attrs = {}
+        $.each(element.attributes, function(key, attribute) {
+            
+            if(attribute['name'].match(/^data-/) !== null)
+                data_attrs[attribute['name'].replace(/^data-/, '')] = attribute['value'];
+            
+        });
+        
+        return data_attrs;
         
     }
     
@@ -45,7 +51,7 @@
         // Add the API key and site to the list of parameters
         parameters['key']    = options['key'];
         parameters['site']   = site_domain;
-        parameters['filter'] = options['question_filter'];
+        parameters['filter'] = options['filter'];
         
         // Lastly, make the request
         $.ajax({ 'url': url, 'data': parameters, 'dataType': 'jsonp',
@@ -85,11 +91,12 @@
         $.each(question_list, function(key, instance) {
             
             // Find the right API data for the instance and generate it
-            var instance_data = questions[instance['question_id']];
+            var instance_data = questions[instance['id']];
             var element = $(instance['element']);
             
             // Set the element's style
             element.addClass('stacktack-container');
+            element.css('width', instance['width'] + 'px');
             
             // Generate the contents
             var contents = '<div class="branding">Stack<span>Tack</span></div>';
@@ -117,12 +124,14 @@
         });
     }
     
-    // Here we create a jquery method named 'stacktack' that can be invoked with options
-    // for the specific set of matched elements that will override the defaults
+    // The application of options is done on three different levels. The initial values for all instances
+    // are taken from $.fn.stacktack.defaults. Then each invocation of .stacktack() can supply a list of
+    // parameters that override the default values. Finally, each element itself can override an option
+    // by specifying a data-* attribute in the container element.
     $.fn.stacktack = function(custom_options) {
         
-        // Determine the final options that will be applied
-        var options = $.extend($.fn.stacktack.defaults, custom_options);
+        // The second level of options that apply to all elements in this invocation
+        var second_level_options = $.extend({}, $.fn.stacktack.defaults, custom_options);
         
         // As we loop over the elements, we will be generating a list of post IDs for various
         // sites in the Stack Exchange network. Keep a list of them here:
@@ -131,22 +140,21 @@
         // Begin looping over the current set of matched elements, applying StackTack to them
         this.each(function() {
             
-            // Retrieve the options for the current element - ID is required
-            var question_id = RetrieveDataAttribute(this, 'id', null);
-            if(question_id !== null) {
+            // Retrieve all of the data-* attributes in the element and use it to override
+            // the second level options we calculated above
+            var third_level_options = $.extend({}, second_level_options, RetrieveDataAttributes(this), { 'element': this });
+            
+            // Make sure that ID was specified since it is not guaranteed to exist
+            if(typeof third_level_options['id'] != 'undefined') {
                 
                 // Determine the site (and remove '.com' from the end for consistency)
-                var site = RetrieveDataAttribute(this, 'site', 'stackoverflow').replace(/\.com$/, '');
+                var site = third_level_options['site'].replace(/\.com$/, '');
                 
                 // Add the item to the list for that site
                 if(typeof site_list[site] == 'undefined')
                     site_list[site] = [];
                 
-                // Create a map of all of the properties for this particular instance
-                var instance_details = { 'element':     this,
-                                         'question_id': question_id };
-                
-                site_list[site].push(instance_details);
+                site_list[site].push(third_level_options);
                 
             }
         });
@@ -156,11 +164,11 @@
             
             // Concatenate the list of question IDs
             var question_id_list = [];
-            $.each(question_list, function(key, instance) { question_id_list.push(instance['question_id']); });
+            $.each(question_list, function(key, instance) { question_id_list.push(instance['id']); });
             var question_id_str = $.unique(question_id_list).join(';');
             
-            // Make the API request for the question data
-            SendAPIRequest(options, site, '/questions/' + question_id_str, {},
+            // Make the API request for the question data (using the second level options)
+            SendAPIRequest(second_level_options, site, '/questions/' + question_id_str, {},
                            function(data) { ProcessQuestionList(question_list, data); },
                            /* TODO */
                            function(error_message) {});
@@ -170,9 +178,11 @@
 
     // These are the default settings that are applied to each element in the matched set
     $.fn.stacktack.defaults = {
-        secure:          false,                       // true to use HTTPS when accessing the API
-        key:             'CRspH1WAlZKCeCinkGOLHw((',  // the API key to use with StackTack
-        question_filter: '!-)dQB3E8g_ab'              // the filter to use when fetching question data
+        key:    'CRspH1WAlZKCeCinkGOLHw((',  // the API key to use with StackTack
+        filter: '!-)dQB3E8g_ab',             // the filter to use when fetching question data
+        secure: false,                       // true to use HTTPS when accessing the API
+        site:   'stackoverflow',             // the default site to use for API lookups
+        width:  600                          // the width of each instance
     };
 
 })(jQuery);

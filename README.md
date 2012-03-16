@@ -3,7 +3,7 @@
 
 <h3>Dependencies</h3>
 <ul>
-  <li>jQuery</li>>
+  <li>jQuery</li>
 </ul>
 
 <h3>Installation</h3>
@@ -35,4 +35,5 @@
   <li>The addition of a build system (not complete yet)</li>
   <li><code>.stacktack()</code> now operates on the current set of matched elements instead of searching for elements based on ID</li>
   <li>Options can be specified globally yet overridden on a per-invocation and per-element basis (including <code>site</code>)</li>
+  <li>API requests to the same site are grouped to cut down on requests.</li>
 </ul>
