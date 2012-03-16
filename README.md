@@ -3,7 +3,7 @@
 
 <h3>Dependencies</h3>
 <ul>
-  <li>jQuery (I haven't determined the minimum version yet.)</li>
+  <li>jQuery</li>>
 </ul>
 
 <h3>Installation</h3>
@@ -27,3 +27,12 @@
     <pre><code>$('.stacktack').stacktack();</code></pre>
   </li>
 </ol>
+
+<h3>What Has Been Changed</h3>
+<p>This fork contains a number of changes from the <a href="https://bitbucket.org/zamtools/stacktack">original code</a>. The details of these changes are below:</p>
+<ul>
+  <li>The removal of icons / images</li>
+  <li>The addition of a build system (not complete yet)</li>
+  <li><code>.stacktack()</code> now operates on the current set of matched elements instead of searching for elements based on ID</li>
+  <li>Options can be specified globally yet overridden on a per-invocation and per-element basis (including <code>site</code>)</li>
+</ul>
