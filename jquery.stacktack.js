@@ -67,6 +67,13 @@
         
     }
     
+    // Generates the HTML for an answer
+    function GenerateAnswerHTML(answer) {
+        
+        return '<div class="heading answer-count">' + answer['score'] + ' votes</div>' + answer['body'];
+        
+    }
+    
     // Processes a list of questions for a particular site
     function ProcessQuestionList(question_list, api_data) {
         
@@ -86,8 +93,24 @@
             
             // Generate the contents
             var contents = '<div class="branding">Stack<span>Tack</span></div>';
-            contents += '<a href="' + instance_data['link'] + '" class="title">' + instance_data['title'] + '</a><div class="hr" />';
+            contents += '<a href="' + instance_data['link'] + '" target="_blank" class="heading">' + instance_data['title'] + '</a><div class="hr" />';
             contents += instance_data['body'] + '<div class="hr" />';
+            
+            // Check for answers
+            if(instance_data['answer_count']) {
+                
+                // Unfortunately we need to manually sort the answers because the API does not do this for us
+                var sorted_answers = instance_data['answers'].sort(function (a, b) { return b['score'] - a['score']; });
+                
+                // Generate the HTML for each of them
+                var answer_html = [];
+                $.each(instance_data['answers'], function(key, answer) { answer_html.push(GenerateAnswerHTML(answer)); });
+                
+                // Concatenate the output to the question
+                contents += answer_html.join('<div class="hr" />');
+                
+            } else
+                contents += '<p class="tip">There are currently no answers.</p>';
             
             element.html(contents);
             

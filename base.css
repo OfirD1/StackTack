@@ -43,7 +43,7 @@
     color: #ccc;
 }
 
-.stacktack-container .title {
+.stacktack-container .heading {
     display: block;
     font-size: 14pt;
     font-weight: bold;
@@ -60,5 +60,16 @@
 
 .stacktack-container pre {
     background-color: #e7e7e7;
+    overflow-x: auto;
     padding: 4px 10px;
+}
+
+.stacktack-container p.tip {
+    color: #999;
+    padding: 0px 20px;
+}
+
+.stacktack-container .answer-count {
+    color: #999;
+    margin: 4px 0px;
 }
