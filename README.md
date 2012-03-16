@@ -10,6 +10,10 @@
 <p>Adding StackTack to a page can be done as follows:</p>
 <ol>
   <li>
+    Add the following to the <code>&lt;head&gt;</code> section of your page:
+    <pre><code>&lt;link rel="stylesheet" href="styles/base.css" /&gt;</code></pre>
+  </li>
+  <li>
     Create an element in your page like so:
     <pre><code>&lt;div class="stacktack" data-site="stackoverflow" data-id="1732348" &gt;&lt;/div&gt;</code></pre>
   </li>
