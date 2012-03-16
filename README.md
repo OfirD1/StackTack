@@ -1,16 +1,42 @@
 <h2>StackTack</h2>
 <p>StackTack is a tool that will fetch information about any question in the Stack Exchange network of sites and format it in a nicely-styled and functional widget.</p>
 
+<h3>What Has Been Changed</h3>
+<p>This fork contains a number of changes from the <a href="https://bitbucket.org/zamtools/stacktack">original code</a>. The details of these changes are below:</p>
+<ul>
+  <li>The icons and images in the sprite were removed.</li>
+  <li>A build system for minifying the CSS and JS was added.</li>
+  <li><code>.stacktack()</code> now operates on the current set of matched elements instead of searching for elements based on ID.</li>
+  <li>Options can be specified globally yet overridden on a per-invocation and per-element basis (including <code>site</code>).</li>
+  <li>API requests to the same site are grouped to cut down on requests.</li>
+</ul>
+
 <h3>Dependencies</h3>
 <ul>
   <li>jQuery</li>
 </ul>
 
+<h3>Build Dependencies</h3>
+<ul>
+  <li>Python</li>
+</ul>
+
+<h3>Build Instructions</h3>
+<ol>
+  <li>Determine whether you want the CSS styles to be included in the minified JS file or whether you want to create an external minified CSS file.</li>
+  <li>
+    Run the following command:
+    <pre><code>python build.py</code></pre>
+    <b>Note:</b> add the <code>--embed-css</code> option to the command above if you want to embed the CSS.
+  </li>
+  <li>You should now have a 'jquery.stacktack.min.js' file and (depending on the options you specified) a 'style.min.css' file.</li>
+</ol>
+
 <h3>Installation</h3>
 <p>Adding StackTack to a page can be done as follows:</p>
 <ol>
   <li>
-    Add the following to the <code>&lt;head&gt;</code> section of your page:
+    Add the following to the <code>&lt;head&gt;</code> section of your page (only required if the CSS was not embedded in the JS file - see above):
     <pre><code>&lt;link rel="stylesheet" href="style.css" /&gt;</code></pre>
   </li>
   <li>
@@ -27,13 +53,3 @@
     <pre><code>$('.stacktack').stacktack();</code></pre>
   </li>
 </ol>
-
-<h3>What Has Been Changed</h3>
-<p>This fork contains a number of changes from the <a href="https://bitbucket.org/zamtools/stacktack">original code</a>. The details of these changes are below:</p>
-<ul>
-  <li>The removal of icons / images</li>
-  <li>The addition of a build system for minifying CSS / JS</li>
-  <li><code>.stacktack()</code> now operates on the current set of matched elements instead of searching for elements based on ID</li>
-  <li>Options can be specified globally yet overridden on a per-invocation and per-element basis (including <code>site</code>)</li>
-  <li>API requests to the same site are grouped to cut down on requests.</li>
-</ul>
