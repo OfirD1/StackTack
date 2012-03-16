@@ -11,7 +11,7 @@
 <ol>
   <li>
     Add the following to the <code>&lt;head&gt;</code> section of your page:
-    <pre><code>&lt;link rel="stylesheet" href="styles/base.css" /&gt;</code></pre>
+    <pre><code>&lt;link rel="stylesheet" href="style.css" /&gt;</code></pre>
   </li>
   <li>
     Create an element in your page like so:
@@ -32,7 +32,7 @@
 <p>This fork contains a number of changes from the <a href="https://bitbucket.org/zamtools/stacktack">original code</a>. The details of these changes are below:</p>
 <ul>
   <li>The removal of icons / images</li>
-  <li>The addition of a build system (not complete yet)</li>
+  <li>The addition of a build system for minifying CSS / JS</li>
   <li><code>.stacktack()</code> now operates on the current set of matched elements instead of searching for elements based on ID</li>
   <li>Options can be specified globally yet overridden on a per-invocation and per-element basis (including <code>site</code>)</li>
   <li>API requests to the same site are grouped to cut down on requests.</li>

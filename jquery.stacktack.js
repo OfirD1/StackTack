@@ -17,8 +17,8 @@
     
     // When building StackTack (using the build script), there is an option to generate JS code that will
     // inject the CSS into the page dynamically instead of depending on an external CSS file. This may be
-    // beneficial in some cases. Therefore please do not remove the comment below until after the build
-    // process is complete.
+    // beneficial in some cases. Therefore the following comment exists below to facilitate this in the
+    // build system. Please do not remove the comment - the build script will do this automatically.
     
     /* INJECTED_STYLESHEET_PLACEHOLDER */
     
