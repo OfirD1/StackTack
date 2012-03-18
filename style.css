@@ -18,6 +18,8 @@
     border-radius: 8px;
     box-shadow: 0px 0px 10px #777;
     font-family: arial, helvetica, sans;
+    font-size: 10pt;
+    margin: 10px;
     padding: 10px;
 }
 
@@ -51,10 +53,11 @@
 .stacktack-container .hr {
     background-color: #ccc;
     height: 1px;
+    margin: 2px 0px;
 }
 
-.stacktack-container p, .stacktack-container ol, .stacktack-container ul {
-    font-size: 10pt;
+.stacktack-container p {
+    margin: 10px 0px;
 }
 
 .stacktack-container pre {
@@ -68,7 +71,25 @@
     padding: 0px 20px;
 }
 
+.stacktack-container .tags {
+    margin: 6px 0px;
+    text-align: right;
+}
+
+.stacktack-container .tags div {
+    background-color: #e7e7ff;
+    border-bottom: 1px solid #bbf;
+    border-right:  1px solid #bbf;
+    display: inline-block;
+    margin-right: 6px;
+    padding: 2px 6px;
+}
+
 .stacktack-container .answer-count {
     color: #999;
     margin: 4px 0px;
+}
+
+.stacktack-container .answer-count span {
+    color: #7b7;
 }

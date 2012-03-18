@@ -73,10 +73,23 @@
         
     }
     
+    // Generates the HTML for question tags
+    function GenerateTagHTML(tags) {
+        
+        var html = '<div class="tags">';
+        
+        // Generate the html for each of the tags and return it
+        $.each(tags, function(key, tag) { html += '<div>' + tag + '</div>' });
+        return html + '</div>';
+        
+    }
+    
     // Generates the HTML for an answer
     function GenerateAnswerHTML(answer) {
         
-        return '<div class="heading answer-count">' + answer['score'] + ' votes</div>' + answer['body'];
+        return '<div class="heading answer-count">' + answer['score'] + ' votes' +
+               (answer['is_accepted']?' - <span>Accepted</span>':'') +
+               '</div>' + answer['body'];
         
     }
     
@@ -100,8 +113,13 @@
             
             // Generate the contents
             var contents = '<div class="branding">Stack<span>Tack</span></div>';
-            contents += '<a href="' + instance_data['link'] + '" target="_blank" class="heading">' + instance_data['title'] + '</a><div class="hr" />';
-            contents += instance_data['body'] + '<div class="hr" />';
+            contents += '<a href="' + instance_data['link'] + '" target="_blank" class="heading">' + instance_data['title'] + '</a><div class="hr" />' + instance_data['body'];
+            
+            // Display tags if requested
+            if(instance['tags'])
+                contents += GenerateTagHTML(instance_data['tags']);
+            
+            contents += '<div class="hr" />';
             
             // Check for answers
             if(instance_data['answer_count']) {
@@ -111,7 +129,12 @@
                 
                 // Generate the HTML for each of them
                 var answer_html = [];
-                $.each(instance_data['answers'], function(key, answer) { answer_html.push(GenerateAnswerHTML(answer)); });
+                $.each(instance_data['answers'], function(key, answer) {
+                    
+                    if(!instance['acceptedonly'] || answer['is_accepted'])
+                        answer_html.push(GenerateAnswerHTML(answer));
+                    
+                });
                 
                 // Concatenate the output to the question
                 contents += answer_html.join('<div class="hr" />');
@@ -178,11 +201,13 @@
 
     // These are the default settings that are applied to each element in the matched set
     $.fn.stacktack.defaults = {
-        key:    'CRspH1WAlZKCeCinkGOLHw((',  // the API key to use with StackTack
-        filter: '!-)dQB3E8g_ab',             // the filter to use when fetching question data
-        secure: false,                       // true to use HTTPS when accessing the API
-        site:   'stackoverflow',             // the default site to use for API lookups
-        width:  600                          // the width of each instance
+        acceptedonly: true,                        // only display the accepted answer
+        key:          'CRspH1WAlZKCeCinkGOLHw((',  // the API key to use with StackTack
+        filter:       '!-)dQB3E8g_ab',             // the filter to use when fetching question data
+        secure:       false,                       // true to use HTTPS when accessing the API
+        site:         'stackoverflow',             // the default site to use for API lookups
+        tags:         true,                        // display tags under the question
+        width:        600                          // the width of each instance
     };
 
 })(jQuery);
