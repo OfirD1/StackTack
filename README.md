@@ -13,12 +13,12 @@
 
 <h3>Dependencies</h3>
 <ul>
-  <li>jQuery</li>
+  <li>jQuery (only if built with <code>--disable-jquery-check</code>)</li>
 </ul>
 
 <h3>Build Dependencies</h3>
 <ul>
-  <li>Python</li>
+  <li>Python 2.5+</li>
 </ul>
 
 <h3>Build Instructions</h3>
@@ -27,9 +27,9 @@
   <li>
     Run the following command:
     <pre><code>python build.py</code></pre>
-    <b>Note:</b> add the <code>--embed-css</code> option to the command above if you want to embed the CSS.
+    <b>Note:</b> add the <code>--enable-embed-css</code> option to the command above if you want to embed the CSS.
   </li>
-  <li>You should now have a 'jquery.stacktack.min.js' file and (depending on the options you specified) a 'style.min.css' file.</li>
+  <li>You should now have a 'stacktack.min.js' file and (depending on the options you specified) a 'style.min.css' file in the 'out' folder.</li>
 </ol>
 
 <h3>Installation</h3>
