@@ -67,13 +67,6 @@
                      }});
         }
         
-        // Utility method that generates the HTML for a user profile
-        function GenerateProfileHTML(user) {
-            
-            return (user)?'<div class="stacktack-profile"><img src="http://www.gravatar.com/avatar/' + user.email_hash + '?d=identicon&s=32" class="stacktack-gravatar" /><a href="http://' + options.site + '/users/' + user.user_id  + '" target="_blank">' + user.display_name + '</a><br/>' + user.reputation + '</div>':'';
-            
-        }
-        
         // Generates the HTML for question tags
         function GenerateTagHTML(tags) {
             
@@ -85,12 +78,22 @@
             
         }
         
+        // Generates the HTML for a user profile
+        function GenerateProfileHTML(user) {
+            
+            if(typeof user['link'] != 'undefined')
+                return '<a href="' + user['link'] + '" class="user-link">by ' + user['display_name'] + '</a>';
+            else
+                return '<span class="user-link">' + user['display_name'] + '</span>'
+            
+        }
+        
         // Generates the HTML for an answer
         function GenerateAnswerHTML(answer) {
             
             return '<a href="' + answer['link'] + '" target="_blank" class="heading answer-count">' + answer['score'] + ' votes' +
-                   (answer['is_accepted']?' - <span>Accepted</span>':'') +
-                   '</a>' + answer['body'];
+                   (answer['is_accepted']?' - <span class="accepted">Accepted</span>':'') +
+                   '</a>' + GenerateProfileHTML(answer['owner']) + answer['body'];
             
         }
         
@@ -161,7 +164,8 @@
                 
                 // Generate the contents
                 var contents = '<div class="branding">Stack<span>Tack</span></div>';
-                contents += '<a href="' + instance_data['link'] + '" target="_blank" class="heading">' + instance_data['title'] + '</a><div class="hr" />' + instance_data['body'];
+                contents += '<a href="' + instance_data['link'] + '" target="_blank" class="heading">' + instance_data['title'] +
+                            '</a>' + GenerateProfileHTML(instance_data['owner']) + '<div class="hr" />' + instance_data['body'];
                 
                 // Display tags if requested
                 if(instance['tags'])

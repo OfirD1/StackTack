@@ -16,7 +16,7 @@
 .stacktack-container {
     background-color: white;
     border-radius: 8px;
-    box-shadow: 0px 0px 10px #777;
+    box-shadow: 0 0 10px #777;
     font-family: arial, helvetica, sans;
     font-size: 9pt;
     margin: 20px 10px;
@@ -53,11 +53,11 @@
 .stacktack-container .hr {
     background-color: #ccc;
     height: 1px;
-    margin: 6px 0px;
+    margin: 6px 0;
 }
 
 .stacktack-container p {
-    margin: 10px 0px;
+    margin: 10px 0;
 }
 
 .stacktack-container pre {
@@ -68,7 +68,7 @@
 
 .stacktack-container p.tip {
     color: #999;
-    padding: 0px 20px;
+    padding: 0 20px;
 }
 
 .stacktack-container .tags {
@@ -87,9 +87,16 @@
 
 .stacktack-container .answer-count {
     color: #999;
-    margin: 4px 0px;
+    margin: 4px 0 0;
 }
 
-.stacktack-container .answer-count span {
+.stacktack-container .answer-count .accepted {
     color: #7b7;
+}
+
+.stacktack-container .user-link {
+    color: #999;
+    display: inline-block;
+    font-size: 8pt;
+    margin-left: 8px;
 }
