@@ -32,24 +32,42 @@
   <li>You should now have a 'stacktack.min.js' file and (depending on the options you specified) a 'style.min.css' file in the 'out' folder.</li>
 </ol>
 
-<h3>Installation</h3>
-<p>Adding StackTack to a page can be done as follows:</p>
+<h3>Using StackTack</h3>
+<p>Adding StackTack to a page is relatively simple and consists of the following steps:</p>
 <ol>
   <li>
-    Add the following to the <code>&lt;head&gt;</code> section of your page (only required if the CSS was not embedded in the JS file - see above):
-    <pre><code>&lt;link rel="stylesheet" href="style.css" /&gt;</code></pre>
+    If you <b>did not</b> build StackTack with the <code>--enable-embed-css</code> option, add the following line to the <code>&lt;head&gt;</code> section of your page:
+    <pre><code>&lt;link rel="stylesheet" href="style.min.css" /&gt;</code></pre>
   </li>
   <li>
-    Create an element in your page like so:
+    If you built StackTack with the <code>--disable-jquery-check</code> option, you will need to manually load jQuery by adding the following to the end of the <code>&lt;body&gt;</code> section of your page:
+    <pre><code>&lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"&gt;&lt;/script&gt;</code></pre>
+  </li>
+  <li>
+    Add StackTack to the <code>&lt;body&gt;</code> section of your page:
+    <pre><code>&lt;script type="text/javascript" src="stacktack.min.js"&gt;&lt;/script&gt;</code></pre>
+  </li>
+  <li>
+    If you <b>did not</b> build StackTack with the <code>--disable-jquery-check</code> option, add the following lines directly below the one above:
+    <pre><code>&lt;script type="text/javascript"&gt;
+$(document).ready(function() {
+    $('.stacktack').stacktack();
+});
+&lt;/script&gt;</code></pre>
+    This little snippet initializes all of the elements on the page with the 'stacktack' class.
+  </li>
+  <li>
+    To insert a StackTack widget on the page, use the following template:
     <pre><code>&lt;div class="stacktack" data-site="stackoverflow" data-id="1732348" &gt;&lt;/div&gt;</code></pre>
-  </li>
-  <li>
-    Add the following to the end of the <code>&lt;body&gt;</code> section of your page:
-    <pre><code>&lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="path/to/stacktack.min.js"&gt;&lt;/script&gt;</code></pre>
-  </li>
-  <li>
-    After the two lines above, in your <code>$(document).ready()</code> handler, select the elements you want to use with StackTack and call the <code>.stacktack()</code> plugin method on them:
-    <pre><code>$('.stacktack').stacktack();</code></pre>
+    The <code>&lt;div&gt;</code> contains a number of <code>data-*</code> attributes that specify the options for that particular instance. These options include:
+    <ul>
+      <li><b>answers:</b> specifies the answers that will be displayed - this can be 'all', 'none', 'accepted', or a comma-separated list of answer IDs</li>
+      <li><b>id:</b> the ID of the question <i>[required]</i></li>
+      <li><b>secure:</b> whether to use HTTPS when retrieving data from the API</li>
+      <li><b>site:</b> the site to retrieve the question from</li>
+      <li><b>tags:</b> whether or not to display the question's tags</li>
+      <li><b>width:</b> the width (in pixels) of the widget</li>
+    </ul>
+    These options (except 'id') can also be specified in a map in the <code>.stacktack()</code> method in the previous step.
   </li>
 </ol>

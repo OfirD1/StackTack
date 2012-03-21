@@ -94,6 +94,53 @@
             
         }
         
+        // Processes the answers to a question, returning the HTML for the answers
+        function ProcessAnswers(data, options) {
+            
+            // Unfortunately we need to manually sort the answers because the API does not do this for us and then
+            // convert the answers into a map where the key becomes the answer's ID
+            var sorted_answers = data['answers'].sort(function (a, b) { return b['score'] - a['score']; });
+            var answer_key = {};
+            $.each(sorted_answers, function(key, value) { answer_key[value['answer_id']] = value; });
+            
+            // Add different answers to the output list depending on the 'answers' option
+            var output_answers = [];
+            if(options['answers'] == 'all')
+                output_answers = sorted_answers;
+            else if(options['answers'] == 'accepted') {
+                
+                if(typeof data['accepted_answer_id'] != 'undefined' && typeof answer_key[data['accepted_answer_id']] != 'undefined')
+                    output_answers.push(answer_key[data['accepted_answer_id']]);
+                else
+                    output_answers.push(sorted_answers[0]);
+            }
+            else {
+                
+                var id_list = options['answers'].split(',');
+                $.each(id_list, function(key, value) {
+                    
+                    if(typeof answer_key[value] != 'undefined')
+                        output_answers.push(answer_key[value]);
+                    
+                });
+            }
+            
+            // Concatenate the output to the question
+            var html = '';
+            
+            if(output_answers.length) {
+                
+                var answer_html = []
+                $.each(output_answers, function(key, value) { answer_html.push(GenerateAnswerHTML(value)); });
+                
+                html += answer_html.join('<div class="hr" />');
+                
+            } else
+                html += '<p class="tip">No answers matched the specified criteria.</p>';
+            
+            return html;
+        }
+        
         // Processes a list of questions for a particular site
         function ProcessQuestionList(question_list, api_data) {
             
@@ -120,28 +167,17 @@
                 if(instance['tags'])
                     contents += GenerateTagHTML(instance_data['tags']);
                 
-                contents += '<div class="hr" />';
-                
-                // Check for answers
-                if(instance_data['answer_count']) {
+                // Display answers if the user requests them
+                if(instance['answers'] != 'none') {
                     
-                    // Unfortunately we need to manually sort the answers because the API does not do this for us
-                    var sorted_answers = instance_data['answers'].sort(function (a, b) { return b['score'] - a['score']; });
+                    contents += '<div class="hr" />';
                     
-                    // Generate the HTML for each of them
-                    var answer_html = [];
-                    $.each(instance_data['answers'], function(key, answer) {
-                        
-                        if(!instance['acceptedonly'] || answer['is_accepted'])
-                            answer_html.push(GenerateAnswerHTML(answer));
-                        
-                    });
+                    if(typeof instance_data['answers'] != 'undefined')
+                        contents += ProcessAnswers(instance_data, instance);
+                    else
+                        contents += '<p class="tip">This question does not have any answers.</p>';
                     
-                    // Concatenate the output to the question
-                    contents += answer_html.join('<div class="hr" />');
-                    
-                } else
-                    contents += '<p class="tip">There are currently no answers.</p>';
+                }
                 
                 element.html(contents);
                 
@@ -202,7 +238,11 @@
 
         // These are the default settings that are applied to each element in the matched set
         $.fn.stacktack.defaults = {
-            acceptedonly: true,                        // only display the accepted answer
+            answers:      'accepted',                  // any one of the following:
+                                                       //   - 'all' for all of the answers
+                                                       //   - 'none' for none of the answers
+                                                       //   - 'accepted' for only the accepted answer or top voted
+                                                       //   - a list of comma-separated values
             key:          'CRspH1WAlZKCeCinkGOLHw((',  // the API key to use with StackTack
             filter:       '!-)dQB3E8g_ab',             // the filter to use when fetching question data
             secure:       false,                       // true to use HTTPS when accessing the API
@@ -226,6 +266,13 @@
             
             // Once the script has loaded, we can safely use jQuery
             StackTack(jQuery);
+            
+            // Run StackTack on all elements on the page with the 'stacktack' class
+            $(document).ready(function() {
+                
+                $('.stacktack').stacktack();
+                
+            });
             
         };
         
