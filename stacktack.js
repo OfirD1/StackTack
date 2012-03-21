@@ -88,9 +88,9 @@
         // Generates the HTML for an answer
         function GenerateAnswerHTML(answer) {
             
-            return '<div class="heading answer-count">' + answer['score'] + ' votes' +
+            return '<a href="' + answer['link'] + '" target="_blank" class="heading answer-count">' + answer['score'] + ' votes' +
                    (answer['is_accepted']?' - <span>Accepted</span>':'') +
-                   '</div>' + answer['body'];
+                   '</a>' + answer['body'];
             
         }
         
@@ -248,7 +248,7 @@
             secure:       false,                       // true to use HTTPS when accessing the API
             site:         'stackoverflow',             // the default site to use for API lookups
             tags:         true,                        // display tags under the question
-            width:        600                          // the width of each instance
+            width:        'auto'                       // the width of each instance (in pixels)
         };
     }
     

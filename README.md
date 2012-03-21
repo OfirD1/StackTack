@@ -18,7 +18,7 @@
 
 <h3>Build Dependencies</h3>
 <ul>
-  <li>Python 2.5+</li>
+  <li>Python 2.5+ (required by the build system, <a href="https://github.com/nathan-osman/Juice-Builder">Juice Builder</a>)</li>
 </ul>
 
 <h3>Build Instructions</h3>
