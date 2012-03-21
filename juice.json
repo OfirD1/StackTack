@@ -5,6 +5,6 @@
     },
     "files": [
         { "filename": "stacktack.js", "output": "stacktack.min.js" },
-        { "filename": "style.css",    "output": "style.min.css", "condition": "!embed-css" }
+        { "filename": "stacktack.css",    "output": "stacktack.min.css", "condition": "!embed-css" }
     ]
 }
