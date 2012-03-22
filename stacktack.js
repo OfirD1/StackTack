@@ -19,7 +19,7 @@
         
         /* @if embed-css */
         
-        $('head').append('<style>' + /* @include style.css minify quote */ + '</style>');
+        $('head').append('<style>' + /* @include stacktack.css minify quote */ + '</style>');
         
         /* @endif */
         
