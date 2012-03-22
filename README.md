@@ -63,9 +63,11 @@ $(document).ready(function() {
     <ul>
       <li><b>answers:</b> specifies the answers that will be displayed - this can be 'all', 'none', 'accepted', or a comma-separated list of answer IDs</li>
       <li><b>id:</b> the ID of the question <i>[required]</i></li>
+      <li><b>question:</b> whether or not to display the question</li>
       <li><b>secure:</b> whether to use HTTPS when retrieving data from the API</li>
       <li><b>site:</b> the site to retrieve the question from</li>
       <li><b>tags:</b> whether or not to display the question's tags</li>
+      <li><b>votes:</b> whether or not to display vote score on answers</i>
       <li><b>width:</b> the width (in pixels) of the widget</li>
     </ul>
     These options (except 'id') can also be specified in a map in the <code>.stacktack()</code> method in the previous step.

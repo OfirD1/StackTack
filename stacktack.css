@@ -76,7 +76,7 @@
     text-align: right;
 }
 
-.stacktack-container .tags div {
+.stacktack-container .tags span {
     background-color: #e7e7ff;
     border-bottom: 1px solid #bbf;
     border-right:  1px solid #bbf;

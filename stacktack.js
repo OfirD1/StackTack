@@ -73,7 +73,7 @@
             var html = '<div class="tags">';
             
             // Generate the html for each of the tags and return it
-            $.each(tags, function(key, tag) { html += '<div>' + tag + '</div>' });
+            $.each(tags, function(key, tag) { html += '<span>' + tag + '</span>' });
             return html + '</div>';
             
         }
@@ -89,16 +89,20 @@
         }
         
         // Generates the HTML for an answer
-        function GenerateAnswerHTML(answer) {
+        function GenerateAnswerHTML(options, answer) {
             
-            return '<a href="' + answer['link'] + '" target="_blank" class="heading answer-count">' + answer['score'] + ' votes' +
-                   (answer['is_accepted']?' - <span class="accepted">Accepted</span>':'') +
-                   '</a>' + GenerateProfileHTML(answer['owner']) + answer['body'];
+            var content = '';
+            if(options['votes'] == 'true')
+                content += '<div class="hr" /><a href="' + answer['link'] + '" target="_blank" class="heading answer-count">' +
+                           answer['score'] + ' votes' + (answer['is_accepted']?' - <span class="accepted">Accepted</span>':'') + '</a>';
+            
+            content += GenerateProfileHTML(answer['owner']) + answer['body'];
+            return content;
             
         }
         
         // Processes the answers to a question, returning the HTML for the answers
-        function ProcessAnswers(data, options) {
+        function ProcessAnswers(options, data) {
             
             // Unfortunately we need to manually sort the answers because the API does not do this for us and then
             // convert the answers into a map where the key becomes the answer's ID
@@ -131,15 +135,10 @@
             // Concatenate the output to the question
             var html = '';
             
-            if(output_answers.length) {
-                
-                var answer_html = []
-                $.each(output_answers, function(key, value) { answer_html.push(GenerateAnswerHTML(value)); });
-                
-                html += answer_html.join('<div class="hr" />');
-                
-            } else
-                html += '<p class="tip">No answers matched the specified criteria.</p>';
+            if(output_answers.length)
+                $.each(output_answers, function(key, value) { html += GenerateAnswerHTML(options, value); });
+            else
+                html += '<div class="hr" /><p class="tip">No answers matched the specified criteria.</p>';
             
             return html;
         }
@@ -160,17 +159,16 @@
                 
                 // Set the element's style
                 element.addClass('stacktack-container');
-                element.css('width', instance['width'] + 'px');
+                element.css('width', instance['width'] + ((instance['width'].toString().match(/^\d+$/) !== null)?'px':''));
                 
                 // Generate the contents
                 var contents = '<div class="branding">Stack<span>Tack</span></div>';
-                contents += '<a href="' + instance_data['link'] + '" target="_blank" class="heading">' + instance_data['title'] +
-                            '</a>' + GenerateProfileHTML(instance_data['owner']);
+                contents += '<a href="' + instance_data['link'] + '" target="_blank" class="heading">' + instance_data['title'] + '</a>';
                 
                 // Display the question if requested
                 if(instance['question'] == 'true') {
                     
-                    contents += '<div class="hr" />' + instance_data['body'];
+                    contents += GenerateProfileHTML(instance_data['owner']) + '<div class="hr" />' + instance_data['body'];
                     
                     // Display tags if requested
                     if(instance['tags'] == 'true')
@@ -181,12 +179,10 @@
                 // Display answers if the user requests them
                 if(instance['answers'] != 'none') {
                     
-                    contents += '<div class="hr" />';
-                    
                     if(typeof instance_data['answers'] != 'undefined')
-                        contents += ProcessAnswers(instance_data, instance);
+                        contents += ProcessAnswers(instance, instance_data);
                     else
-                        contents += '<p class="tip">This question does not have any answers.</p>';
+                        contents += '<div class="hr" /><p class="tip">This question does not have any answers.</p>';
                     
                 }
                 
@@ -260,6 +256,7 @@
             secure:       'false',                     // true to use HTTPS when accessing the API
             site:         'stackoverflow',             // the default site to use for API lookups
             tags:         'true',                      // display tags under the question
+            votes:        'true',                      // display vote count for each answer
             width:        'auto'                       // the width of each instance (in pixels)
         };
     }
