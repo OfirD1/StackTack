@@ -47,7 +47,7 @@
         function SendAPIRequest(options, site_domain, method, parameters, success_callback, error_callback) {
             
             // Begin by constructing the URL that will be used for the request
-            var url = (options['secure']?'https://':'http://') + 'api.stackexchange.com/2.0' + method;
+            var url = ((options['secure'] == 'true')?'https://':'http://') + 'api.stackexchange.com/2.0' + method;
             
             // Add the API key and site to the list of parameters
             parameters['key']    = options['key'];
@@ -165,11 +165,18 @@
                 // Generate the contents
                 var contents = '<div class="branding">Stack<span>Tack</span></div>';
                 contents += '<a href="' + instance_data['link'] + '" target="_blank" class="heading">' + instance_data['title'] +
-                            '</a>' + GenerateProfileHTML(instance_data['owner']) + '<div class="hr" />' + instance_data['body'];
+                            '</a>' + GenerateProfileHTML(instance_data['owner']);
                 
-                // Display tags if requested
-                if(instance['tags'])
-                    contents += GenerateTagHTML(instance_data['tags']);
+                // Display the question if requested
+                if(instance['question'] == 'true') {
+                    
+                    contents += '<div class="hr" />' + instance_data['body'];
+                    
+                    // Display tags if requested
+                    if(instance['tags'] == 'true')
+                        contents += GenerateTagHTML(instance_data['tags']);
+                    
+                }
                 
                 // Display answers if the user requests them
                 if(instance['answers'] != 'none') {
@@ -249,9 +256,10 @@
                                                        //   - a list of comma-separated values
             key:          'CRspH1WAlZKCeCinkGOLHw((',  // the API key to use with StackTack
             filter:       '!-)dQB3E8g_ab',             // the filter to use when fetching question data
-            secure:       false,                       // true to use HTTPS when accessing the API
+            question:     'true',                      // whether to display the question or not
+            secure:       'false',                     // true to use HTTPS when accessing the API
             site:         'stackoverflow',             // the default site to use for API lookups
-            tags:         true,                        // display tags under the question
+            tags:         'true',                      // display tags under the question
             width:        'auto'                       // the width of each instance (in pixels)
         };
     }
