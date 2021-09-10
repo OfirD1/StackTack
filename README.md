@@ -30,6 +30,15 @@
   <li>You should now have a <code>'stacktack.min.js'</code> file and (depending on the options you specified) a <code>'style.min.css'</code> file in the <code>'out'</code> folder.</li>
 </ol>
 <h3>Running the demo</h3>
+<p>
+    <a href="https://jsfiddle.net/6c2wo0mb/">Live demo is hosted on jsFiddle</a>.
+    <ul>
+        <li>
+            <strong>Note:</strong> Currently, the live demo is possible by serving the Github source files through <a href="https://combinatronics.com/">Combinatorics</a>. However, this would probably break someday in the future, as such services tend to. 
+        </li>
+    </ul>
+</p>
+<p>To run the demo locally:</p>
 <ol>
     <li>
         <p>
