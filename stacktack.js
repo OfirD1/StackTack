@@ -255,7 +255,7 @@
             key: 'CRspH1WAlZKCeCinkGOLHw((',  // the API key to use with StackTack
             filter: '!-)dQB3E8g_ab',             // the filter to use when fetching question data
             question: 'true',                      // whether to display the question or not
-            secure: 'false',                     // true to use HTTPS when accessing the API
+            secure: 'true',                     // true to use HTTPS when accessing the API
             site: 'stackoverflow',             // the default site to use for API lookups
             tags: 'true',                      // display tags under the question
             votes: 'true',                      // display vote count for each answer
