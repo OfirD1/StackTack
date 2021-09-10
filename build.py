@@ -23,8 +23,8 @@ from json import loads
 from os import path, mkdir
 from re import compile, DOTALL, sub
 from sys import argv
-from urllib import urlencode
-from urllib2 import urlopen
+from urllib import request, parse
+import traceback
 
 # This class returns 'tokens' from an input stream
 class FileStream:
@@ -48,7 +48,7 @@ class FileStream:
         return self
     
     # Returns the next token in the stream
-    def next(self):
+    def __next__(self):
         if self.pos >= len(self.contents):
             raise StopIteration
         m = self.command_regex.search(self.contents[self.pos:])
@@ -86,8 +86,8 @@ class JuiceBuilder:
     
     # Prints copyright information for the program
     def _print_header(self):
-        print 'Simple JavaScript / CSS minification and build system'
-        print 'Copyright 2012 - Nathan Osman\n'
+        print('Simple JavaScript / CSS minification and build system')
+        print('Copyright 2012 - Nathan Osman\n')
     
     # Loads the project defaults and help strings from the juice file
     def _load_project(self):
@@ -115,12 +115,13 @@ class JuiceBuilder:
     
     # Performs minification of the specified JS source file using Google's Closure compiler
     def _minify_js_file(self, input):
-        params = urlencode({ 'js_code':           input,
+        params = parse.urlencode({ 'js_code':           input,
                              'compilation_level': 'SIMPLE_OPTIMIZATIONS',
                              'output_format':     'json',
-                             'output_info':       'compiled_code', })
-        json_response = loads(urlopen('http://closure-compiler.appspot.com/compile',
-                                      data=params).read())
+                             'output_info':       'compiled_code', }).encode()
+
+        req =  request.Request('https://closure-compiler.appspot.com/compile', data=params)
+        json_response = loads(request.urlopen(req).read())
         return json_response['compiledCode']
     
     # Performs basic RegEx based minification of CSS files
@@ -154,7 +155,7 @@ class JuiceBuilder:
     
     # Tokenizes and parses the specified file using the specified stack
     def _parse_file(self, src_file, stack, nest_level):
-        print '%sBuilding "%s".' % ('  ' * nest_level, src_file,)
+        print('%sBuilding "%s".' % ('  ' * nest_level, src_file,))
         input = FileStream(src_file)
         for t in input:
             stack.append(t)
@@ -207,7 +208,7 @@ class JuiceBuilder:
             if not t['type'] == FileStream.TokenContent:
                 raise Exception('unexpected command "%s" encountered' % t['command'])
             output += t['content']
-        print 'Producing "%s".' % output_fn
+        print('Producing "%s".' % output_fn)
         f = open(output_fn, 'w')
         f.write(self._minify_file(output, output_fn))
         f.close()
@@ -228,11 +229,12 @@ class JuiceBuilder:
                     self._build_file(src_file)
             else:
                 self._build_file(src_file)
-        print "\nBuild process completed without error."
+        print("\nBuild process completed without error.")
 
 try:
     # Create the builder and build the project
     builder = JuiceBuilder()
     builder.build()
 except Exception as e:
-    print 'Fatal error: %s.' % e
+    print('Fatal error: %s.' % e)
+    print(traceback.format_exc())

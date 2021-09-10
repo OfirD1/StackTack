@@ -2,13 +2,11 @@
 <p>StackTack is a tool that will fetch information about any question in the Stack Exchange network of sites and format it in a nicely-styled and functional widget.</p>
 
 <h3>What Has Been Changed</h3>
-<p>This fork contains a number of changes from the <a href="https://bitbucket.org/zamtools/stacktack">original code</a>. The details of these changes are below:</p>
+<p>This fork has few changes from the already <a href="https://github.com/nathan-osman/StackTack">forked StackTack</a>. The changes are:
 <ul>
-  <li>The icons and images in the sprite were removed.</li>
-  <li>A build system for minifying the CSS and JS was added.</li>
-  <li><code>.stacktack()</code> now operates on the current set of matched elements instead of searching for elements based on ID.</li>
-  <li>Options can be specified globally yet overridden on a per-invocation and per-element basis (including <code>site</code>).</li>
-  <li>API requests to the same site are grouped to cut down on requests.</li>
+  <li><code>build.py</code> was transformed to Python 3.</li>
+  <li>Dedicated <code>demo</code> folder was added, with a shorter <code>demo.html</code> file.</li>
+  <li>Few documentation fixes and changes.</li>
 </ul>
 
 <h3>Dependencies</h3>
@@ -18,7 +16,7 @@
 
 <h3>Build Dependencies</h3>
 <ul>
-  <li>Python 2.5+ (required by the build system, <a href="https://github.com/nathan-osman/Juice-Builder">Juice Builder</a>)</li>
+  <li>Python 3+ (required by the build system, <a href="https://github.com/nathan-osman/Juice-Builder">Juice Builder</a>)</li>
 </ul>
 
 <h3>Build Instructions</h3>
@@ -29,7 +27,19 @@
     <pre><code>python build.py</code></pre>
     <b>Note:</b> add the <code>--enable-embed-css</code> option to the command above if you want to embed the CSS.
   </li>
-  <li>You should now have a 'stacktack.min.js' file and (depending on the options you specified) a 'style.min.css' file in the 'out' folder.</li>
+  <li>You should now have a <code>'stacktack.min.js'</code> file and (depending on the options you specified) a <code>'style.min.css'</code> file in the <code>'out'</code> folder.</li>
+</ol>
+<h3>Running the demo</h3>
+<p>To run the demo:</p>
+<ol>
+  <li>Make sure you followed the <strong>Build Instructions</strong> section above.</li>
+  <li>Copy the output files from the <code>out</code> folder into the <code>demo</code> folder.</li>
+  <li>
+    Run the following commands:
+    <pre><code>cd demo<br/>python -m http.serve</code></pre>
+    <b>Note:</b> The default port is <code>8000</code>, but you can specify another port, <a href="https://stackoverflow.com/questions/15328623/simple-file-server-to-serve-current-directory">see here</a>.
+  </li>
+  <li>Browse to <a href="http://localhost:8000/demo.html">http://localhost:8000/demo.html</a>.</li>
 </ol>
 
 <h3>Using StackTack</h3>
@@ -41,24 +51,15 @@
   </li>
   <li>
     If you built StackTack with the <code>--disable-jquery-check</code> option, you will need to manually load jQuery by adding the following to the end of the <code>&lt;body&gt;</code> section of your page:
-    <pre><code>&lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"&gt;&lt;/script&gt;</code></pre>
+    <pre><code>&lt;script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"&gt;&lt;/script&gt;</code></pre>
   </li>
   <li>
     Add StackTack to the <code>&lt;body&gt;</code> section of your page:
     <pre><code>&lt;script type="text/javascript" src="stacktack.min.js"&gt;&lt;/script&gt;</code></pre>
   </li>
   <li>
-    If you <b>did not</b> build StackTack with the <code>--disable-jquery-check</code> option, add the following lines directly below the one above:
-    <pre><code>&lt;script type="text/javascript"&gt;
-$(document).ready(function() {
-    $('.stacktack').stacktack();
-});
-&lt;/script&gt;</code></pre>
-    This little snippet initializes all of the elements on the page with the 'stacktack' class.
-  </li>
-  <li>
     To insert a StackTack widget on the page, use the following template:
-    <pre><code>&lt;div class="stacktack" data-site="stackoverflow" data-id="1732348" &gt;&lt;/div&gt;</code></pre>
+    <pre><code>&lt;div class="stacktack" data-site="stackoverflow" data-id="1732348" data-answers="all"&gt;&lt;/div&gt;</code></pre>
     The <code>&lt;div&gt;</code> contains a number of <code>data-*</code> attributes that specify the options for that particular instance. These options include:
     <ul>
       <li><b>answers:</b> specifies the answers that will be displayed - this can be 'all', 'none', 'accepted', or a comma-separated list of answer IDs</li>
