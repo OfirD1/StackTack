@@ -30,14 +30,17 @@
   <li>You should now have a <code>'stacktack.min.js'</code> file and (depending on the options you specified) a <code>'style.min.css'</code> file in the <code>'out'</code> folder.</li>
 </ol>
 <h3>Running the demo</h3>
-<p>To run the demo:</p>
 <ol>
-  <li>Make sure you followed the <strong>Build Instructions</strong> section above.</li>
-  <li>Copy the output files from the <code>out</code> folder into the <code>demo</code> folder.</li>
-  <li>
-    Run the following commands:
-    <pre><code>cd demo<br/>python -m http.serve</code></pre>
-    <b>Note:</b> The default port is <code>8000</code>, but you can specify another port, <a href="https://stackoverflow.com/questions/15328623/simple-file-server-to-serve-current-directory">see here</a>.
+    <li>
+        <p>
+            Run the following commands:
+            <pre><code>cd demo<br/>python -m http.serve</code></pre>
+            <b>Notes:</b> 
+            <ol>
+                <li>The default port is <code>8000</code>, but you can specify another port, <a href="https://stackoverflow.com/questions/15328623/simple-file-server-to-serve-current-directory">see here</a>.</li>
+                <li>The minified files in the <code>demo</code> folder are a copy of the resultant files after following the <strong>Build Instructions</strong> section above.</li>
+            </ol>
+        </p>
   </li>
   <li>Browse to <a href="http://localhost:8000/demo.html">http://localhost:8000/demo.html</a>.</li>
 </ol>
